@@ -20,15 +20,13 @@ function initializeMap() {
         fullscreenControl: true,
     });
 
-    // Fetch data from the backend
     fetchCoursesFromBackend();
     fetchStudySessionsFromBackend();
 
-    // Set up event listeners
     setupEventListeners();
 }
 
-// Fetch study sessions from backend API
+// fetch study sessions from backend API
 async function fetchStudySessionsFromBackend() {
     try {
         const response = await fetch('/api/study-sessions');
@@ -39,10 +37,9 @@ async function fetchStudySessionsFromBackend() {
         studySessions = await response.json();
         console.log('Fetched study sessions:', studySessions);
         
-        // Clear existing markers
         clearMarkers();
         
-        // Add markers for each study session
+        // add markers for each study session
         studySessions.forEach((session) => {
             const location = {
                 position: { 
@@ -84,7 +81,7 @@ async function fetchCoursesFromBackend() {
     }
 }
 
-// Fallback: Add sample study group markers if backend is not available
+// fallback: sample study group markers if backend is not available
 function addSampleStudyGroups() {
     const sampleLocations = [
         { 
@@ -121,7 +118,7 @@ function addSampleStudyGroups() {
     });
 }
 
-// Add a marker to the map
+// add a marker to the map
 function addMarker(location) {
     const marker = new google.maps.Marker({
         position: location.position,
@@ -130,7 +127,7 @@ function addMarker(location) {
         animation: google.maps.Animation.DROP,
     });
 
-    // Create an info window with study group details
+    // create an info window with study group details
     const courseDisplay = location.courseName ? 
         `${location.course} - ${location.courseName}` : 
         location.course;
@@ -163,7 +160,6 @@ function addMarker(location) {
     });
 }
 
-// Clear all markers from the map
 function clearMarkers() {
     markers.forEach((m) => {
         m.marker.setMap(null);
@@ -171,18 +167,14 @@ function clearMarkers() {
     markers = [];
 }
 
-// Filter markers based on selected course
 function filterMarkersByCourse(course) {
-    // If we have a course selected, fetch sessions for that course
     if (course) {
         fetchStudySessionsByCourse(course);
     } else {
-        // Otherwise fetch all sessions
         fetchStudySessionsFromBackend();
     }
 }
 
-// Fetch study sessions filtered by course
 async function fetchStudySessionsByCourse(course) {
     try {
         const response = await fetch(`/api/study-sessions?course=${encodeURIComponent(course)}`);
@@ -218,7 +210,7 @@ async function fetchStudySessionsByCourse(course) {
     }
 }
 
-// Populate the course dropdown with data from backend
+// pop the course dropdown with data from backend
 function populateCourseDropdown(courses) {
     const dropdown = document.getElementById('courseFilter');
     dropdown.innerHTML = '<option value="">All Courses</option>';
@@ -227,7 +219,7 @@ function populateCourseDropdown(courses) {
         const option = document.createElement('option');
         option.value = course.CourseTitle;
         
-        // Use CourseName if available, otherwise just CourseTitle
+        // use CourseName if available, otherwise just CourseTitle
         const displayText = course.CourseName ? 
             `${course.CourseTitle} - ${course.CourseName}` : 
             course.CourseTitle;
@@ -237,7 +229,7 @@ function populateCourseDropdown(courses) {
     });
 }
 
-// Drop a pin at user's current location
+// drop a pin at user's current location
 function dropPinAtCurrentLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -247,12 +239,11 @@ function dropPinAtCurrentLocation() {
                     lng: position.coords.longitude,
                 };
 
-                // Remove previous user marker if exists
                 if (userMarker) {
                     userMarker.setMap(null);
                 }
 
-                // Add marker at user's location
+                // add marker at user's location
                 userMarker = new google.maps.Marker({
                     position: userPosition,
                     map: map,
@@ -283,7 +274,6 @@ function dropPinAtCurrentLocation() {
     }
 }
 
-// Show dialog to create a study group 
 function showCreateStudyGroupDialog(position) {
     // Get a list of courses for the dropdown
     let courseOptions = '';
@@ -291,7 +281,6 @@ function showCreateStudyGroupDialog(position) {
         courseOptions += `<option value="${course.CourseTitle}">${course.CourseTitle}</option>`;
     });
     
-    // Create a more user-friendly dialog
     const locationName = prompt("Enter a name for this location:", "");
     if (!locationName) return;
     
@@ -300,7 +289,7 @@ function showCreateStudyGroupDialog(position) {
     
     const description = prompt("Enter a brief description of your study session:", "");
     
-    // Create study session data
+    // create study session data
     const sessionData = {
         location: {
             name: locationName,
@@ -310,7 +299,6 @@ function showCreateStudyGroupDialog(position) {
         courseTitle: courseTitle,
         description: description,
         status: 'active',
-        // In a real implementation, you would get the current user's NetID
         creatorNetId: 'user123' 
     };
     
@@ -318,7 +306,7 @@ function showCreateStudyGroupDialog(position) {
     createStudySession(sessionData, position);
 }
 
-// Create study session in backend
+// create study session in backend
 async function createStudySession(sessionData, position) {
     try {
         const response = await fetch('/api/study-sessions', {
@@ -336,13 +324,13 @@ async function createStudySession(sessionData, position) {
         const newSession = await response.json();
         console.log('Created new study session:', newSession);
         
-        // If backend call succeeds, refresh study sessions
+        // if backend call succeeds, refresh study sessions
         fetchStudySessionsFromBackend();
         
     } catch (error) {
         console.error('Error creating study session:', error);
         
-        // If backend call fails, create a temporary marker
+        // If backend call fails create a temporary marker
         const newStudyGroup = {
             position: position,
             title: sessionData.location.name,
@@ -356,14 +344,12 @@ async function createStudySession(sessionData, position) {
 
 // Join study group function
 async function joinStudyGroup(sessionId, locationName) {
-    // Check if we have a sessionId (if using sample data, we might not)
     if (!sessionId) {
         alert(`You've joined the study group at ${locationName}!`);
         return;
     }
     
     try {
-        // In a real implementation, you would get the current user's NetID
         const userNetId = 'user123'; 
         
         const response = await fetch(`/api/study-sessions/${sessionId}/join`, {
@@ -394,7 +380,6 @@ async function joinStudyGroup(sessionId, locationName) {
 
 // Set up event listeners
 function setupEventListeners() {
-    // Course filter
     document.getElementById("courseFilter").addEventListener("change", function() {
         filterMarkersByCourse(this.value);
     });
@@ -402,7 +387,6 @@ function setupEventListeners() {
     // Drop pin button
     document.getElementById("dropPin").addEventListener("click", dropPinAtCurrentLocation);
     
-    // Add a refresh button event listener if it exists
     const refreshButton = document.getElementById("refreshMap");
     if (refreshButton) {
         refreshButton.addEventListener("click", fetchStudySessionsFromBackend);

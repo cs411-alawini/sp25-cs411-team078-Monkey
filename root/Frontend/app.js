@@ -52,27 +52,22 @@ async function handleLogin(event) {
     }
     
     try {
-        // In a real implementation, you would verify credentials with backend
-        // For now, just check if user exists
+
         const response = await fetch(`/api/users/${netId}`);
         
         if (response.ok) {
             const user = await response.json();
             
-            // Store user info in localStorage (in a real app, you'd use secure methods)
             currentUser = user;
             localStorage.setItem('studylync_user', JSON.stringify(user));
             
-            // Update UI
             updateUIForLoggedInUser(user);
             
-            // Hide login modal if it exists
             const loginModal = document.getElementById('loginModal');
             if (loginModal) {
                 loginModal.style.display = 'none';
             }
         } else {
-            // If user doesn't exist and we're in dev mode, create one
             if (netId === 'testuser' && password === 'password') {
                 const newUser = {
                     UserNetId: netId,
@@ -97,7 +92,6 @@ async function handleLogin(event) {
                         localStorage.setItem('studylync_user', JSON.stringify(createdUser));
                         updateUIForLoggedInUser(createdUser);
                         
-                        // Hide login modal if it exists
                         const loginModal = document.getElementById('loginModal');
                         if (loginModal) {
                             loginModal.style.display = 'none';
@@ -119,20 +113,20 @@ async function handleLogin(event) {
     }
 }
 
-// Handle user logout
+
 function handleLogout() {
-    // Clear user data
+
     currentUser = null;
     localStorage.removeItem('studylync_user');
     
-    // Update UI
+
     updateUIForLoggedOutUser();
     
-    // Reload page to reset state
+
     window.location.reload();
 }
 
-// Update UI elements based on login state
+
 function updateUIForLoggedInUser(user) {
     // Update nav elements if they exist
     const loginButton = document.getElementById('loginButton');
@@ -147,9 +141,7 @@ function updateUIForLoggedInUser(user) {
     }
 }
 
-// Update UI elements for logged out state
 function updateUIForLoggedOutUser() {
-    // Update nav elements if they exist
     const loginButton = document.getElementById('loginButton');
     const logoutButton = document.getElementById('logoutButton');
     const userDisplay = document.getElementById('userDisplay');
@@ -159,7 +151,6 @@ function updateUIForLoggedOutUser() {
     if (userDisplay) userDisplay.style.display = 'none';
 }
 
-// Get the current user's NetID (or null if not logged in)
 function getCurrentUserNetId() {
     return currentUser ? currentUser.UserNetId : null;
 }
