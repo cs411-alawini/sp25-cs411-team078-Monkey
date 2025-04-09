@@ -8,6 +8,7 @@ const UIUC_CENTER = { lat: 40.1020, lng: -88.2272 }; // UIUC campus coordinates
 
 // Initialize the map
 function initializeMap() {
+    console.log("HELLOOOOO")
     map = new google.maps.Map(document.getElementById("map"), {
         center: UIUC_CENTER,
         zoom: 15,
