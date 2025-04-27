@@ -25,6 +25,8 @@ function initializeMap() {
     fetchStudySessionsFromBackend();
 
     setupEventListeners();
+    setupAutocomplete();
+
 }
 
 // fetch study sessions from backend API
@@ -76,7 +78,7 @@ async function fetchCoursesFromBackend() {
         console.log('Fetched courses:', courses);
         
         // Populate the course dropdown
-        populateCourseDropdown(courses);
+        //populateCourseDropdown(courses);
     } catch (error) {
         console.error('Error fetching courses:', error);
     }
@@ -381,9 +383,15 @@ async function joinStudyGroup(sessionId, locationName) {
 
 // Set up event listeners
 function setupEventListeners() {
-    document.getElementById("courseFilter").addEventListener("change", function() {
-        filterMarkersByCourse(this.value);
-    });
+    // document.getElementById("courseFilter").addEventListener("input", function() {
+    //     const course = this.value.trim();
+    //     if (course === "") {
+    //         fetchStudySessionsFromBackend(); // no filter if empty
+    //     } else {
+    //         filterMarkersByCourse(course); // filter normally
+    //     }
+    // });
+    
 
     // Drop pin button
     document.getElementById("dropPin").addEventListener("click", dropPinAtCurrentLocation);
@@ -392,4 +400,56 @@ function setupEventListeners() {
     if (refreshButton) {
         refreshButton.addEventListener("click", fetchStudySessionsFromBackend);
     }
+}
+
+function setupAutocomplete() {
+    const courseInput = document.getElementById('courseFilter');
+    const autocompleteList = document.getElementById('autocompleteList');
+
+    courseInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        autocompleteList.innerHTML = '';
+
+        if (!query) {
+            fetchStudySessionsFromBackend();
+            return;
+        }
+
+        const matchedCourses = courses
+            .filter(course => course.CourseTitle.toLowerCase().includes(query))
+            .slice(0, 10); // limit to 10 suggestions
+
+        matchedCourses.forEach(course => {
+            const item = document.createElement('div');
+            item.classList.add('autocomplete-item');
+            item.innerText = course.CourseTitle;
+            item.addEventListener('click', function() {
+                courseInput.value = course.CourseTitle;
+                autocompleteList.innerHTML = '';
+                filterMarkersByCourse(course.CourseTitle);
+            });
+            autocompleteList.appendChild(item);
+        });
+    });
+
+    // Handle "Enter" key
+    courseInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = this.value.trim();
+            autocompleteList.innerHTML = '';
+            if (query === '') {
+                fetchStudySessionsFromBackend();
+            } else {
+                filterMarkersByCourse(query);
+            }
+        }
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.autocomplete-container')) {
+            autocompleteList.innerHTML = '';
+        }
+    });
 }

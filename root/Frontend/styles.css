@@ -195,3 +195,33 @@ button:hover {
         width: 90%;
     }
 }
+
+.autocomplete-container {
+    position: relative;
+    width: 300px;
+}
+
+#courseFilter {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.autocomplete-items {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #d4d4d4;
+    z-index: 99;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-item:hover {
+    background-color: #f1f1f1;
+}
