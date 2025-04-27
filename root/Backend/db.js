@@ -1,6 +1,6 @@
 // Database connection setup for StudyLync MySQL on GCP
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const mysql = require("mysql2/promise");
+require("dotenv").config();
 
 // Configuration for MySQL connection
 const dbConfig = {
@@ -9,19 +9,22 @@ const dbConfig = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
-  ssl: process.env.DB_SSL === 'true' ? {
-    rejectUnauthorized: false
-  } : false,
+  ssl:
+    process.env.DB_SSL === "true"
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
   connectTimeout: 10000,
-  keepAliveInitialDelay: 10000
+  keepAliveInitialDelay: 10000,
 };
 
-console.log('Connecting to database with config:', {
+console.log("Connecting to database with config:", {
   host: dbConfig.host,
   user: dbConfig.user,
   database: dbConfig.database,
   port: dbConfig.port,
-  ssl: !!dbConfig.ssl
+  ssl: !!dbConfig.ssl,
 });
 
 // Create a connection pool
@@ -31,13 +34,13 @@ const pool = mysql.createPool(dbConfig);
 async function testConnection() {
   try {
     const connection = await pool.getConnection();
-    console.log('Successfully connected to MySQL database on GCP');
-    const [result] = await connection.execute('SELECT 1 as test');
-    console.log('Database query test successful:', result);
+    console.log("Successfully connected to MySQL database on GCP");
+    const [result] = await connection.execute("SELECT 1 as test");
+    console.log("Database query test successful:", result);
     connection.release();
     return true;
   } catch (error) {
-    console.error('Error connecting to MySQL database:', error);
+    console.error("Error connecting to MySQL database:", error);
     return false;
   }
 }
@@ -45,17 +48,21 @@ async function testConnection() {
 // Utility function to execute non-transactional queries
 async function query(sql, params = []) {
   try {
-    console.log(`Executing SQL: ${sql.substring(0, 150)}${sql.length > 150 ? '...' : ''}`);
+    console.log(
+      `Executing SQL: ${sql.substring(0, 150)}${sql.length > 150 ? "..." : ""}`
+    );
     if (params.length > 0) {
-      console.log('With parameters:', params);
+      console.log("With parameters:", params);
     }
     const [results] = await pool.execute(sql, params);
-    console.log(`Query successful, returned ${results ? results.length : 0} rows`);
+    console.log(
+      `Query successful, returned ${results ? results.length : 0} rows`
+    );
     return results;
   } catch (error) {
-    console.error('Database query error:', error);
-    console.error('Failed query:', sql);
-    console.error('Query parameters:', params);
+    console.error("Database query error:", error);
+    console.error("Failed query:", sql);
+    console.error("Query parameters:", params);
     throw error;
   }
 }
@@ -64,14 +71,14 @@ async function query(sql, params = []) {
 async function transaction(callback) {
   const connection = await pool.getConnection();
   try {
-    await connection.query('SET TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+    await connection.query("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
     await connection.beginTransaction();
     await callback(connection);
     await connection.commit();
-    console.log('Transaction committed successfully');
+    console.log("Transaction committed successfully");
   } catch (error) {
     await connection.rollback();
-    console.error('Transaction rolled back due to error:', error);
+    console.error("Transaction rolled back due to error:", error);
     throw error;
   } finally {
     connection.release();
@@ -80,54 +87,73 @@ async function transaction(callback) {
 
 // User-related database operations
 const userQueries = {
-  getAllUsers: async () => await query('SELECT * FROM Users'),
+  getAllUsers: async () => await query("SELECT * FROM Users"),
 
-  getUserByNetId: async (netId) => await query('SELECT * FROM Users WHERE UserNetId = ?', [netId]),
+  getUserByNetId: async (netId) =>
+    await query("SELECT * FROM Users WHERE UserNetId = ?", [netId]),
 
-  getUsersBySessionId: async (sessionId) => await query('SELECT * FROM Users WHERE SessionId = ?', [sessionId]),
+  getUsersBySessionId: async (sessionId) =>
+    await query("SELECT * FROM Users WHERE SessionId = ?", [sessionId]),
 
   createUser: async (userData) => {
     const { netId, firstName, lastName, email, password } = userData;
     return await query(
-      'INSERT INTO Users (UserNetId, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)',
+      "INSERT INTO Users (UserNetId, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)",
       [netId, firstName, lastName, email, password]
     );
   },
 
-  updateUserSession: async (netId, sessionId) => await query(
-    'UPDATE Users SET SessionId = ? WHERE UserNetId = ?',
-    [sessionId, netId]
-  )
+  updateUserSession: async (netId, sessionId) =>
+    await query("UPDATE Users SET SessionId = ? WHERE UserNetId = ?", [
+      sessionId,
+      netId,
+    ]),
 };
 
 // Course-related database operations
 const courseQueries = {
-  getAllCourses: async () => await query('SELECT * FROM Courses'),
+  getAllCourses: async () => await query("SELECT * FROM Courses"),
 
-  getCourseByTitle: async (title) => await query('SELECT * FROM Courses WHERE CourseTitle = ?', [title])
+  getCourseByTitle: async (title) =>
+    await query("SELECT * FROM Courses WHERE CourseTitle = ?", [title]),
 };
 
 // Location-related database operations
 const locationQueries = {
-  getAllLocations: async () => await query('SELECT * FROM Locations'),
+  getAllLocations: async () => await query("SELECT * FROM Locations"),
 
-  getLocationById: async (id) => await query('SELECT * FROM Locations WHERE LocationId = ?', [id]),
+  getLocationById: async (id) =>
+    await query("SELECT * FROM Locations WHERE LocationId = ?", [id]),
 
   createLocation: async (locationData) => {
     const { name, longitude, latitude, address } = locationData;
-    console.log('Creating location with data:', { name, longitude, latitude, address });
+    console.log("Creating location with data:", {
+      name,
+      longitude,
+      latitude,
+      address,
+    });
     return await query(
-      'INSERT INTO Locations (LocationName, Longitude, Latitude, Address) VALUES (?, ?, ?, ?)',
-      [name, longitude, latitude, address || '']
+      "INSERT INTO Locations (LocationName, Longitude, Latitude, Address) VALUES (?, ?, ?, ?)",
+      [name, longitude, latitude, address || ""]
     );
-  }
+  },
 };
 
 // Study session-related database operations
 const sessionQueries = {
+  deleteSession: async (sessionId) => {
+    console.log("Deleting StudySession id=", sessionId);
+    return await query(`DELETE FROM StudySessions WHERE SessionId = ?`, [
+      sessionId,
+    ]);
+  },
+
   getAllSessions: async () => {
-    const basicTest = await query('SELECT COUNT(*) as count FROM StudySessions');
-    console.log('StudySessions count:', basicTest[0].count);
+    const basicTest = await query(
+      "SELECT COUNT(*) as count FROM StudySessions"
+    );
+    console.log("StudySessions count:", basicTest[0].count);
     return await query(`
       SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
       FROM StudySessions s
@@ -136,57 +162,84 @@ const sessionQueries = {
     `);
   },
 
-  getSessionById: async (id) => await query(`
+  getSessionById: async (id) =>
+    await query(
+      `
     SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
     FROM StudySessions s
     LEFT JOIN Courses c ON s.CourseTitle = c.CourseTitle
     LEFT JOIN Locations l ON s.LocationId = l.LocationId
     WHERE s.SessionId = ?
-  `, [id]),
+  `,
+      [id]
+    ),
 
-  getSessionsByCourse: async (courseTitle) => await query(`
+  getSessionsByCourse: async (courseTitle) =>
+    await query(
+      `
     SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
     FROM StudySessions s
     LEFT JOIN Courses c ON s.CourseTitle = c.CourseTitle
     LEFT JOIN Locations l ON s.LocationId = l.LocationId
     WHERE c.CourseTitle = ?
-  `, [courseTitle]),
+  `,
+      [courseTitle]
+    ),
 
   createSession: async (sessionData) => {
     const { courseTitle, locationId, status, description } = sessionData;
-    console.log('Creating session with data:', { courseTitle, locationId, status, description });
+    console.log("Creating session with data:", {
+      courseTitle,
+      locationId,
+      status,
+      description,
+    });
 
-    const courseCheck = await query('SELECT COUNT(*) as count FROM Courses WHERE CourseTitle = ?', [courseTitle]);
+    const courseCheck = await query(
+      "SELECT COUNT(*) as count FROM Courses WHERE CourseTitle = ?",
+      [courseTitle]
+    );
     if (courseCheck[0].count === 0) {
       throw new Error(`Course ${courseTitle} does not exist`);
     }
 
-    const locationCheck = await query('SELECT COUNT(*) as count FROM Locations WHERE LocationId = ?', [locationId]);
+    const locationCheck = await query(
+      "SELECT COUNT(*) as count FROM Locations WHERE LocationId = ?",
+      [locationId]
+    );
     if (locationCheck[0].count === 0) {
       throw new Error(`Location ${locationId} does not exist`);
     }
 
     return await query(
-      'INSERT INTO StudySessions (CourseTitle, LocationId, Status, Description) VALUES (?, ?, ?, ?)',
+      "INSERT INTO StudySessions (CourseTitle, LocationId, Status, Description) VALUES (?, ?, ?, ?)",
       [courseTitle, locationId, status, description]
     );
   },
 
-  getSessionParticipants: async (sessionId) => await query('SELECT * FROM Users WHERE SessionId = ?', [sessionId]),
+  getSessionParticipants: async (sessionId) =>
+    await query("SELECT * FROM Users WHERE SessionId = ?", [sessionId]),
 
-  addUserToSession: async (netId, sessionId) => await transaction(async (conn) => {
-    const [user] = await conn.execute('SELECT SessionId FROM Users WHERE UserNetId = ?', [netId]);
+  addUserToSession: async (netId, sessionId) =>
+    await transaction(async (conn) => {
+      const [user] = await conn.execute(
+        "SELECT SessionId FROM Users WHERE UserNetId = ?",
+        [netId]
+      );
 
-    if (user.length === 0) {
-      throw new Error('User not found');
-    }
+      if (user.length === 0) {
+        throw new Error("User not found");
+      }
 
-    if (user[0].SessionId) {
-      throw new Error('User already in another session');
-    }
+      if (user[0].SessionId) {
+        throw new Error("User already in another session");
+      }
 
-    await conn.execute('UPDATE Users SET SessionId = ? WHERE UserNetId = ?', [sessionId, netId]);
-  })
+      await conn.execute("UPDATE Users SET SessionId = ? WHERE UserNetId = ?", [
+        sessionId,
+        netId,
+      ]);
+    }),
 };
 
 // Initialize database connection
@@ -195,15 +248,15 @@ testConnection();
 // Verify tables
 async function verifyDatabaseSetup() {
   try {
-    console.log('Verifying database tables...');
-    const tables = ['Users', 'Courses', 'Locations', 'StudySessions'];
+    console.log("Verifying database tables...");
+    const tables = ["Users", "Courses", "Locations", "StudySessions"];
     for (const table of tables) {
       const result = await query(`SELECT COUNT(*) as count FROM ${table}`);
       console.log(`Table ${table} exists with ${result[0].count} rows`);
     }
-    console.log('Database verification complete');
+    console.log("Database verification complete");
   } catch (error) {
-    console.error('Error verifying database setup:', error);
+    console.error("Error verifying database setup:", error);
   }
 }
 
@@ -217,7 +270,7 @@ module.exports = {
   locationQueries,
   sessionQueries,
   testConnection,
-  verifyDatabaseSetup
+  verifyDatabaseSetup,
 };
 
 // // Database connection setup for StudyLync MySQL on GCP
@@ -257,11 +310,11 @@ module.exports = {
 //   try {
 //     const connection = await pool.getConnection();
 //     console.log('Successfully connected to MySQL database on GCP');
-    
+
 //     // Test basic query to verify database access
 //     const [result] = await connection.execute('SELECT 1 as test');
 //     console.log('Database query test successful:', result);
-    
+
 //     connection.release();
 //     return true;
 //   } catch (error) {
@@ -278,7 +331,7 @@ module.exports = {
 //     if (params && params.length > 0) {
 //       console.log('With parameters:', params);
 //     }
-    
+
 //     const [results] = await pool.execute(sql, params);
 //     console.log(`Query successful, returned ${results ? results.length : 0} rows`);
 //     return results;
@@ -300,7 +353,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getUserByNetId: async (netId) => {
 //     try {
 //       return await query('SELECT * FROM Users WHERE UserNetId = ?', [netId]);
@@ -309,7 +362,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getUsersBySessionId: async (sessionId) => {
 //     try {
 //       return await query('SELECT * FROM Users WHERE SessionId = ?', [sessionId]);
@@ -318,7 +371,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   createUser: async (userData) => {
 //     try {
 //       const { netId, firstName, lastName, email, password } = userData;
@@ -331,7 +384,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   updateUserSession: async (netId, sessionId) => {
 //     try {
 //       return await query(
@@ -355,7 +408,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getCourseByTitle: async (title) => {
 //     try {
 //       return await query('SELECT * FROM Courses WHERE CourseTitle = ?', [title]);
@@ -376,7 +429,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getLocationById: async (id) => {
 //     try {
 //       return await query('SELECT * FROM Locations WHERE LocationId = ?', [id]);
@@ -385,7 +438,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   createLocation: async (locationData) => {
 //     try {
 //       const { name, longitude, latitude, address } = locationData;
@@ -408,10 +461,10 @@ module.exports = {
 //       // First test if there are any sessions at all
 //       const basicTest = await query('SELECT COUNT(*) as count FROM StudySessions');
 //       console.log('StudySessions count:', basicTest[0].count);
-      
+
 //       // Use LEFT JOIN instead of JOIN to be more forgiving if data is missing
 //       return await query(`
-//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
+//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude
 //         FROM StudySessions s
 //         LEFT JOIN Courses c ON s.CourseTitle = c.CourseTitle
 //         LEFT JOIN Locations l ON s.LocationId = l.LocationId
@@ -421,11 +474,11 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getSessionById: async (id) => {
 //     try {
 //       return await query(`
-//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
+//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude
 //         FROM StudySessions s
 //         LEFT JOIN Courses c ON s.CourseTitle = c.CourseTitle
 //         LEFT JOIN Locations l ON s.LocationId = l.LocationId
@@ -436,11 +489,11 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   getSessionsByCourse: async (courseTitle) => {
 //     try {
 //       return await query(`
-//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude 
+//         SELECT s.*, c.CourseTitle, c.CourseName, l.LocationName, l.Latitude, l.Longitude
 //         FROM StudySessions s
 //         LEFT JOIN Courses c ON s.CourseTitle = c.CourseTitle
 //         LEFT JOIN Locations l ON s.LocationId = l.LocationId
@@ -451,26 +504,26 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   createSession: async (sessionData) => {
 //     try {
 //       const { courseTitle, locationId, status, description } = sessionData;
 //       console.log('Creating session with data:', { courseTitle, locationId, status, description });
-      
+
 //       // First check if course exists
 //       const courseCheck = await query('SELECT COUNT(*) as count FROM Courses WHERE CourseTitle = ?', [courseTitle]);
 //       if (courseCheck[0].count === 0) {
 //         console.error(`Course ${courseTitle} does not exist`);
 //         throw new Error(`Course ${courseTitle} does not exist in database`);
 //       }
-      
+
 //       // Then check if location exists
 //       const locationCheck = await query('SELECT COUNT(*) as count FROM Locations WHERE LocationId = ?', [locationId]);
 //       if (locationCheck[0].count === 0) {
 //         console.error(`Location ${locationId} does not exist`);
 //         throw new Error(`Location ${locationId} does not exist in database`);
 //       }
-      
+
 //       return await query(
 //         'INSERT INTO StudySessions (CourseTitle, LocationId, Status, Description) VALUES (?, ?, ?, ?)',
 //         [courseTitle, locationId, status, description]
@@ -480,7 +533,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   // Get users participating in a session - using the direct SessionId in Users table
 //   getSessionParticipants: async (sessionId) => {
 //     try {
@@ -490,7 +543,7 @@ module.exports = {
 //       throw error;
 //     }
 //   },
-  
+
 //   // Add a user to a session - updating their SessionId
 //   addUserToSession: async (netId, sessionId) => {
 //     try {
@@ -509,7 +562,7 @@ module.exports = {
 // async function verifyDatabaseSetup() {
 //   try {
 //     console.log('Verifying database tables...');
-    
+
 //     // Check each required table
 //     const tables = ['Users', 'Courses', 'Locations', 'StudySessions'];
 //     for (const table of tables) {
@@ -520,7 +573,7 @@ module.exports = {
 //         console.error(`Error checking table ${table}:`, error);
 //       }
 //     }
-    
+
 //     console.log('Database verification complete');
 //   } catch (error) {
 //     console.error('Error verifying database setup:', error);
