@@ -151,10 +151,12 @@ app.get("/api/study-sessions/:id", async (req, res) => {
 });
 
 // --- POST create new study session (stored procedure) ---
+// --- POST create new study session (and join user automatically) ---
 app.post("/api/study-sessions", async (req, res) => {
   try {
     let locationId = req.body.locationId;
 
+    // Step 1: Create location if needed
     if (!locationId && req.body.location) {
       const locationResult = await locationQueries.createLocation({
         name: req.body.location.name,
@@ -169,16 +171,21 @@ app.post("/api/study-sessions", async (req, res) => {
       return res.status(400).json({ error: "Creator NetId is required" });
     }
 
-    await createStudySessionAndAssignUser(
-      req.body.courseTitle,
-      locationId,
-      req.body.status || "active",
-      req.body.description || '',
-      req.body.creatorNetId
-    );
+    // Step 2: Create the study session
+    await sessionQueries.createStudySession({
+      courseTitle: req.body.courseTitle,
+      locationId: locationId,
+      status: req.body.status || "active",
+      description: req.body.description || '',
+    });
 
+    // Step 3: Get the newly created session
     const sessions = await sessionQueries.getAllSessions();
     const newSession = sessions[sessions.length - 1];
+    const newSessionId = newSession.SessionId;
+
+    // Step 4: Update the creator's SessionId
+    await userQueries.updateUserSession(req.body.creatorNetId, newSessionId);
 
     res.status(201).json(newSession);
   } catch (error) {
@@ -186,6 +193,7 @@ app.post("/api/study-sessions", async (req, res) => {
     res.status(500).json({ error: "Failed to create study session" });
   }
 });
+
 
 // --- POST join an existing study session ---
 app.post("/api/study-sessions/:id/join", async (req, res) => {
@@ -212,22 +220,30 @@ app.delete("/api/delete-session/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   try {
+    console.log(`🛑 DELETE requested for StudySession with SessionId: ${sessionId}`);
+
     // Confirm session exists
     const session = await sessionQueries.getSessionById(sessionId);
     if (!session || session.length === 0) {
+      console.warn(`⚠️ Session ${sessionId} not found, cannot delete.`);
       return res.status(404).json({ error: "Session not found" });
     }
+
+    console.log(`✅ Deleting Session ${sessionId}...`);
 
     // Delete the session
     await query('DELETE FROM StudySessions WHERE SessionId = ?', [sessionId]);
 
+    console.log(`✅ Session ${sessionId} deleted successfully.`);
+
     // AfterDeleteStudySession trigger will fire automatically to clear user SessionIds!
     res.status(200).json({ message: "Session deleted successfully." });
   } catch (error) {
-    console.error("Error deleting session:", error);
+    console.error(`❌ Error deleting session ${sessionId}:`, error);
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
 
 
 // Debug

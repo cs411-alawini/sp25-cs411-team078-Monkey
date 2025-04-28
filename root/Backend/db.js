@@ -192,7 +192,7 @@ const sessionQueries = {
       [courseTitle]
     ),
 
-  createSession: async (sessionData) => {
+  createStudySession: async (sessionData) => {
     const { courseTitle, locationId, status, description } = sessionData;
     console.log("Creating session with data:", {
       courseTitle,
