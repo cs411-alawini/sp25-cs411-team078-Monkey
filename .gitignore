@@ -1,3 +1,4 @@
 /root/Backend/.env
-/root/Frontend/node_modules
-/root/Backend/node_modules
+/root/Frontend/.env
+/root/Frontend/index.html
+
