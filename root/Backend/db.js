@@ -103,10 +103,25 @@ const userQueries = {
       "INSERT INTO Users (UserNetId, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)",
       [UserNetId, FirstName, LastName, Email, Password]
     );
-    // return the newly created row
     return userQueries.getUserByNetId(UserNetId);
   },
-};
+
+  // get all users in a given session
+  getUsersBySessionId: async (sessionId) => {
+    return await query(
+      "SELECT UserNetId, FirstName, LastName, Email, SessionId FROM Users WHERE SessionId = ?",
+      [sessionId]
+    );
+  },
+
+  // assign a user to a session
+  updateUserSession: async (netId, sessionId) => {
+    return await query("UPDATE Users SET SessionId = ? WHERE UserNetId = ?", [
+      sessionId,
+      netId,
+    ]);
+  },
+}
 
 // Course-related database operations
 const courseQueries = {
