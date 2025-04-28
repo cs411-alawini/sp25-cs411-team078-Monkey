@@ -2,226 +2,232 @@
 
 /* General Styles */
 body {
-    font-family: 'Roboto', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
+  font-family: "Roboto", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
 }
 
 /* Navbar Styles */
 #navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #13294B; /* UIUC blue */
-    color: white;
-    padding: 10px 20px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #13294b; /* UIUC blue */
+  color: white;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .logo {
-    font-size: 1.5em;
-    font-weight: bold;
+  font-size: 1.5em;
+  font-weight: bold;
 }
 
 .nav-links {
-    display: flex;
-    gap: 15px;
-    align-items: center;
+  display: flex;
+  gap: 15px;
+  align-items: center;
 }
 
 #userDisplay {
-    color: white;
-    margin-right: 10px;
-    font-weight: 500;
+  color: white;
+  margin-right: 10px;
+  font-weight: 500;
 }
 
 /* Header Styles */
 #header {
-    background-color: #E84A27; /* UIUC orange */
-    color: white;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background-color: #e84a27; /* UIUC orange */
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 #header h1 {
-    margin: 0;
-    font-size: 2.5em;
+  margin: 0;
+  font-size: 2.5em;
 }
 
 /* Map Container */
 #map {
-    height: 70vh;
-    width: 100%;
-    border-bottom: 3px solid #13294B; /* UIUC blue */
+  height: 70vh;
+  width: 100%;
+  border-bottom: 3px solid #13294b; /* UIUC blue */
 }
 
 /* Controls */
 .controls {
-    background-color: white;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+  background-color: white;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  gap: 15px;
 }
 
 /* Form Elements */
-select, button {
-    padding: 10px 15px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
+select,
+button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
 }
 
 button {
-    background-color: #E84A27; /* UIUC orange */
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
+  background-color: #e84a27; /* UIUC orange */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #C03C21; /* Darker orange */
+  background-color: #c03c21; /* Darker orange */
 }
 
 /* Login Modal */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
-    background-color: white;
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 5px;
-    width: 80%;
-    max-width: 500px;
-    position: relative;
+  background-color: white;
+
+  /* pull it up and let it scroll if it's too tall */
+  margin: 5% auto;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-width: 500px;
+  position: relative;
 }
 
 .close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  cursor: pointer;
 }
 
 .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 .form-note {
-    font-size: 0.9em;
-    color: #666;
-    margin-top: 10px;
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;
 }
 
 /* Study Group Info Window */
 .gm-style-iw {
-    padding: 8px;
+  padding: 8px;
 }
 
 .info-window-content {
-    font-family: 'Roboto', Arial, sans-serif;
-    padding: 5px;
+  font-family: "Roboto", Arial, sans-serif;
+  padding: 5px;
 }
 
 .info-window-content h3 {
-    margin-top: 0;
-    color: #13294B;
+  margin-top: 0;
+  color: #13294b;
 }
 
 .join-button {
-    background-color: #13294B;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 8px;
-    font-weight: bold;
+  background-color: #13294b;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+  font-weight: bold;
 }
 
 .join-button:hover {
-    background-color: #0A1A30;
+  background-color: #0a1a30;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .controls {
-        flex-direction: column;
-    }
-    
-    #map {
-        height: 60vh;
-    }
-    
-    .nav-links {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .modal-content {
-        margin: 20% auto;
-        width: 90%;
-    }
+  .controls {
+    flex-direction: column;
+  }
+
+  #map {
+    height: 60vh;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-content {
+    margin: 20% auto;
+    width: 90%;
+  }
 }
 
 .autocomplete-container {
-    position: relative;
-    width: 300px;
+  position: relative;
+  width: 300px;
 }
 
 #courseFilter {
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
 }
 
 .autocomplete-items {
-    position: absolute;
-    background-color: white;
-    border: 1px solid #d4d4d4;
-    z-index: 99;
-    max-height: 200px;
-    overflow-y: auto;
-    width: 100%;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #d4d4d4;
+  z-index: 99;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
 }
 
 .autocomplete-item {
-    padding: 10px;
-    cursor: pointer;
+  padding: 10px;
+  cursor: pointer;
 }
 
 .autocomplete-item:hover {
-    background-color: #f1f1f1;
+  background-color: #f1f1f1;
 }
