@@ -150,8 +150,32 @@ function addMarker(location) {
     });
 
     // Add click event to marker
-    marker.addListener("click", () => {
+    marker.addListener("click", async () => {
         infowindow.open(map, marker);
+    
+        try {
+            const response = await fetch(`/api/study-sessions/${location.sessionId}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch session details');
+            }
+            const sessionDetails = await response.json();
+            console.log("Fetched session details:", sessionDetails);
+    
+            // Optionally: update info window content with participant count
+            infowindow.setContent(`
+                <div class="info-window-content">
+                    <h3>${location.title}</h3>
+                    <p><strong>Course:</strong> ${sessionDetails.CourseTitle} - ${sessionDetails.CourseName}</p>
+                    <p><strong>Students:</strong> ${sessionDetails.ParticipantCount}</p>
+                    <p><strong>Status:</strong> ${sessionDetails.Status}</p>
+                    ${sessionDetails.Description ? `<p><strong>Details:</strong> ${sessionDetails.Description}</p>` : ''}
+                    <button class="join-button" onclick="joinStudyGroup(${sessionDetails.SessionId}, '${location.title}')">Join Group</button>
+                </div>
+            `);
+    
+        } catch (error) {
+            console.error('Error fetching session details:', error);
+        }
     });
 
     // Store the marker and its metadata

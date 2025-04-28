@@ -9,6 +9,8 @@ const {
   locationQueries,
   sessionQueries,
   query,
+  createStudySessionAndAssignUser,
+  getSessionDetailsWithParticipants,
 } = require("./db");
 
 // Create Express app
@@ -39,16 +41,18 @@ app.get("/api/courses", async (req, res) => {
   }
 });
 
-app.get("/api/courses/:title", async (req, res) => {
+app.get('/api/study-sessions/:id', async (req, res) => {
   try {
-    const course = await courseQueries.getCourseByTitle(req.params.title);
-    if (course.length === 0) {
-      return res.status(404).json({ error: "Course not found" });
+    const sessionDetails = await getSessionDetailsWithParticipants(req.params.id);
+
+    if (sessionDetails.length === 0) {
+      return res.status(404).json({ error: 'Study session not found' });
     }
-    res.json(course[0]);
+
+    res.json(sessionDetails[0]);
   } catch (error) {
-    console.error("Error fetching course:", error);
-    res.status(500).json({ error: "Failed to fetch course" });
+    console.error('Error fetching study session:', error);
+    res.status(500).json({ error: 'Failed to fetch study session' });
   }
 });
 
@@ -147,52 +151,90 @@ app.post("/api/locations", async (req, res) => {
 });
 
 // Study session routes
-app.get("/api/study-sessions", async (req, res) => {
+
+app.post('/api/study-sessions', async (req, res) => {
   try {
-    // If course filter is provided, use it
-    if (req.query.course) {
-      const sessions = await sessionQueries.getSessionsByCourse(
-        req.query.course
-      );
+    let locationId = req.body.locationId;
 
-      // Enhance sessions with participant counts
-      const enhancedSessions = await Promise.all(
-        sessions.map(async (session) => {
-          const participants = await userQueries.getUsersBySessionId(
-            session.SessionId
-          );
-          return {
-            ...session,
-            participantCount: participants.length,
-          };
-        })
-      );
-
-      return res.json(enhancedSessions);
+    if (!locationId && req.body.location) {
+      const locationResult = await locationQueries.createLocation({
+        name: req.body.location.name,
+        longitude: req.body.location.longitude,
+        latitude: req.body.location.latitude,
+        address: req.body.location.address || 'N/A'
+      });
+      locationId = locationResult.insertId;
     }
 
-    // Otherwise get all sessions
-    const sessions = await sessionQueries.getAllSessions();
+    if (!req.body.creatorNetId) {
+      return res.status(400).json({ error: 'Creator NetId is required' });
+    }
 
-    // Enhance sessions with participant counts
-    const enhancedSessions = await Promise.all(
-      sessions.map(async (session) => {
-        const participants = await userQueries.getUsersBySessionId(
-          session.SessionId
-        );
-        return {
-          ...session,
-          participantCount: participants.length,
-        };
-      })
+    // ✅ Call the stored procedure
+    await createStudySessionAndAssignUser(
+      req.body.courseTitle,
+      locationId,
+      req.body.status || 'active',
+      req.body.description || '',
+      req.body.creatorNetId
     );
 
-    res.json(enhancedSessions);
+    // ✅ Now retrieve the newly created session
+    const sessions = await sessionQueries.getAllSessions();
+    const newSession = sessions[sessions.length - 1]; // Assuming last inserted one
+
+    res.status(201).json(newSession);
   } catch (error) {
-    console.error("Error fetching study sessions:", error);
-    res.status(500).json({ error: "Failed to fetch study sessions" });
+    console.error('Error creating study session:', error);
+    res.status(500).json({ error: 'Failed to create study session' });
   }
 });
+// app.get("/api/study-sessions", async (req, res) => {
+//   try {
+//     // If course filter is provided, use it
+//     if (req.query.course) {
+//       const sessions = await sessionQueries.getSessionsByCourse(
+//         req.query.course
+//       );
+
+//       // Enhance sessions with participant counts
+//       const enhancedSessions = await Promise.all(
+//         sessions.map(async (session) => {
+//           const participants = await userQueries.getUsersBySessionId(
+//             session.SessionId
+//           );
+//           return {
+//             ...session,
+//             participantCount: participants.length,
+//           };
+//         })
+//       );
+
+//       return res.json(enhancedSessions);
+//     }
+
+//     // Otherwise get all sessions
+//     const sessions = await sessionQueries.getAllSessions();
+
+//     // Enhance sessions with participant counts
+//     const enhancedSessions = await Promise.all(
+//       sessions.map(async (session) => {
+//         const participants = await userQueries.getUsersBySessionId(
+//           session.SessionId
+//         );
+//         return {
+//           ...session,
+//           participantCount: participants.length,
+//         };
+//       })
+//     );
+
+//     res.json(enhancedSessions);
+//   } catch (error) {
+//     console.error("Error fetching study sessions:", error);
+//     res.status(500).json({ error: "Failed to fetch study sessions" });
+//   }
+// });
 
 app.get("/api/study-sessions/:id", async (req, res) => {
   try {

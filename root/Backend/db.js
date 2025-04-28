@@ -266,6 +266,22 @@ async function verifyDatabaseSetup() {
   }
 }
 
+//stored procedure #1
+async function createStudySessionAndAssignUser(courseTitle, locationId, status, description, userNetId) {
+  const sql = 'CALL CreateStudySessionAndAssignUser(?, ?, ?, ?, ?)';
+  const params = [courseTitle, locationId, status, description, userNetId];
+  return await query(sql, params);
+}
+
+//stored #2
+async function getSessionDetailsWithParticipants(sessionId) {
+  const sql = 'CALL GetSessionDetailsWithParticipants(?)';
+  const params = [sessionId];
+  const results = await query(sql, params);
+
+  // Stored procedures in MySQL return results as [ [rows], [metadata] ]
+  return results[0]; 
+}
 setTimeout(verifyDatabaseSetup, 1000);
 
 module.exports = {
@@ -275,6 +291,8 @@ module.exports = {
   courseQueries,
   locationQueries,
   sessionQueries,
+  createStudySessionAndAssignUser,
+  getSessionDetailsWithParticipants,
   testConnection,
   verifyDatabaseSetup,
 };
