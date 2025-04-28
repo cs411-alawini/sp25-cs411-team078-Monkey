@@ -121,7 +121,7 @@ const userQueries = {
       netId,
     ]);
   },
-}
+};
 
 // Course-related database operations
 const courseQueries = {
@@ -155,6 +155,23 @@ const locationQueries = {
 
 // Study session-related database operations
 const sessionQueries = {
+  getTopCoursesByAttendance: async () => {
+    return await query(`
+      SELECT 
+        s.CourseTitle,
+        COUNT(u.UserNetId) AS StudentCount
+      FROM 
+        StudySessions s
+      LEFT JOIN 
+        Users u ON s.SessionId = u.SessionId
+      GROUP BY 
+        s.CourseTitle
+      ORDER BY 
+        StudentCount DESC
+      LIMIT 3
+    `);
+  },
+
   getAllSessions: async () => {
     const basicTest = await query(
       "SELECT COUNT(*) as count FROM StudySessions"
@@ -267,20 +284,26 @@ async function verifyDatabaseSetup() {
 }
 
 //stored procedure #1
-async function createStudySessionAndAssignUser(courseTitle, locationId, status, description, userNetId) {
-  const sql = 'CALL CreateStudySessionAndAssignUser(?, ?, ?, ?, ?)';
+async function createStudySessionAndAssignUser(
+  courseTitle,
+  locationId,
+  status,
+  description,
+  userNetId
+) {
+  const sql = "CALL CreateStudySessionAndAssignUser(?, ?, ?, ?, ?)";
   const params = [courseTitle, locationId, status, description, userNetId];
   return await query(sql, params);
 }
 
 //stored #2
 async function getSessionDetailsWithParticipants(sessionId) {
-  const sql = 'CALL GetSessionDetailsWithParticipants(?)';
+  const sql = "CALL GetSessionDetailsWithParticipants(?)";
   const params = [sessionId];
   const results = await query(sql, params);
 
   // Stored procedures in MySQL return results as [ [rows], [metadata] ]
-  return results[0]; 
+  return results[0];
 }
 setTimeout(verifyDatabaseSetup, 1000);
 
@@ -299,7 +322,7 @@ const reviewQueries = {
       LEFT JOIN Users ON Reviews.UserNetId = Users.UserNetId
       ORDER BY CreatedAt DESC
     `);
-  }
+  },
 };
 
 module.exports = {
@@ -315,8 +338,6 @@ module.exports = {
   testConnection,
   verifyDatabaseSetup,
 };
-
-
 
 // // Database connection setup for StudyLync MySQL on GCP
 // const mysql = require('mysql2/promise');
