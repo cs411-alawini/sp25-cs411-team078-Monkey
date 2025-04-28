@@ -346,14 +346,21 @@ async function createStudySession(sessionData, position) {
 }
 
 // Join study group function
+// Join study group function
 async function joinStudyGroup(sessionId, locationName) {
     if (!sessionId) {
-        alert(`You've joined the study group at ${locationName}!`);
+        alert(`Invalid session. Please try again.`);
+        return;
+    }
+    
+    // Check if user is signed in
+    if (!currentUser) {
+        alert('You must be signed in to join a study group.');
         return;
     }
     
     try {
-        const userNetId = 'user123'; 
+        const userNetId = currentUser.UserNetId; // ✅ Use logged-in user's NetID
         
         const response = await fetch(`/api/study-sessions/${sessionId}/join`, {
             method: 'POST',
@@ -380,6 +387,7 @@ async function joinStudyGroup(sessionId, locationName) {
         alert(`There was an error joining the study group. Please try again.`);
     }
 }
+
 
 // Set up event listeners
 function setupEventListeners() {
