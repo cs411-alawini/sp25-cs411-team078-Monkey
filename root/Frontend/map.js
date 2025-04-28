@@ -326,7 +326,7 @@ function showCreateStudyGroupDialog(position) {
         courseTitle: courseTitle,
         description: description,
         status: 'active',
-        creatorNetId: 'user123' 
+        creatorNetId: currentUser?.UserNetId 
     };
     
     // Send to backend
@@ -350,8 +350,15 @@ async function createStudySession(sessionData, position) {
         
         const newSession = await response.json();
         console.log('Created new study session:', newSession);
-        
-        // if backend call succeeds, refresh study sessions
+
+        // ✅ Update currentUser and localStorage with the new SessionId
+        if (currentUser) {
+            currentUser.SessionId = newSession.SessionId;
+            localStorage.setItem('studylync_user', JSON.stringify(currentUser));
+            console.log('Updated currentUser with new SessionId:', currentUser.SessionId);
+        }
+
+        // ✅ Then refresh the map
         fetchStudySessionsFromBackend();
         
     } catch (error) {
@@ -368,6 +375,7 @@ async function createStudySession(sessionData, position) {
         addMarker(newStudyGroup);
     }
 }
+
 
 // Join study group function
 // Join study group function
