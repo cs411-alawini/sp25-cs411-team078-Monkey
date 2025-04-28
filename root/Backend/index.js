@@ -61,7 +61,13 @@ app.post("/api/users", async (req, res) => {
     return res.status(400).json({ error: "Missing required fields" });
   }
   try {
-    const newUser = await userQueries.createUser({ UserNetId, FirstName, LastName, Email, Password });
+    const newUser = await userQueries.createUser({
+      UserNetId,
+      FirstName,
+      LastName,
+      Email,
+      Password,
+    });
     return res.status(201).json(newUser);
   } catch (err) {
     console.error("POST /api/users error:", err);
@@ -107,6 +113,17 @@ app.post("/api/locations", async (req, res) => {
   }
 });
 
+// --- GET top courses by attendance ---
+app.get("/api/top-courses", async (req, res) => {
+  try {
+    const topCourses = await sessionQueries.getTopCoursesByAttendance();
+    res.json(topCourses);
+  } catch (error) {
+    console.error("Error fetching top courses:", error);
+    res.status(500).json({ error: "Failed to fetch top courses" });
+  }
+});
+
 // Study Sessions
 
 // --- GET all study sessions ---
@@ -122,7 +139,9 @@ app.get("/api/study-sessions", async (req, res) => {
     // Add participant counts
     const enhancedSessions = await Promise.all(
       sessions.map(async (session) => {
-        const participants = await userQueries.getUsersBySessionId(session.SessionId);
+        const participants = await userQueries.getUsersBySessionId(
+          session.SessionId
+        );
         return { ...session, participantCount: participants.length };
       })
     );
@@ -137,7 +156,9 @@ app.get("/api/study-sessions", async (req, res) => {
 // --- GET one study session with participants (stored procedure) ---
 app.get("/api/study-sessions/:id", async (req, res) => {
   try {
-    const sessionDetails = await getSessionDetailsWithParticipants(req.params.id);
+    const sessionDetails = await getSessionDetailsWithParticipants(
+      req.params.id
+    );
 
     if (sessionDetails.length === 0) {
       return res.status(404).json({ error: "Study session not found" });
@@ -176,7 +197,7 @@ app.post("/api/study-sessions", async (req, res) => {
       courseTitle: req.body.courseTitle,
       locationId: locationId,
       status: req.body.status || "active",
-      description: req.body.description || '',
+      description: req.body.description || "",
     });
 
     // Step 3: Get the newly created session
@@ -193,7 +214,6 @@ app.post("/api/study-sessions", async (req, res) => {
     res.status(500).json({ error: "Failed to create study session" });
   }
 });
-
 
 // --- POST join an existing study session ---
 app.post("/api/study-sessions/:id/join", async (req, res) => {
@@ -220,7 +240,9 @@ app.delete("/api/delete-session/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   try {
-    console.log(`🛑 DELETE requested for StudySession with SessionId: ${sessionId}`);
+    console.log(
+      `🛑 DELETE requested for StudySession with SessionId: ${sessionId}`
+    );
 
     // Confirm session exists
     const session = await sessionQueries.getSessionById(sessionId);
@@ -232,7 +254,7 @@ app.delete("/api/delete-session/:sessionId", async (req, res) => {
     console.log(`✅ Deleting Session ${sessionId}...`);
 
     // Delete the session
-    await query('DELETE FROM StudySessions WHERE SessionId = ?', [sessionId]);
+    await query("DELETE FROM StudySessions WHERE SessionId = ?", [sessionId]);
 
     console.log(`✅ Session ${sessionId} deleted successfully.`);
 
@@ -244,16 +266,17 @@ app.delete("/api/delete-session/:sessionId", async (req, res) => {
   }
 });
 
-
-
 // Debug
 app.get("/api/debug/tables", async (req, res) => {
   try {
-    const tables = await query(`
+    const tables = await query(
+      `
       SELECT TABLE_NAME 
       FROM information_schema.TABLES 
       WHERE TABLE_SCHEMA = ?
-    `, [process.env.DB_NAME]);
+    `,
+      [process.env.DB_NAME]
+    );
 
     res.json({ tables: tables.map((t) => t.TABLE_NAME) });
   } catch (error) {
@@ -264,26 +287,30 @@ app.get("/api/debug/tables", async (req, res) => {
 
 app.get("/api/debug/schema/:table", async (req, res) => {
   try {
-    const columns = await query(`
+    const columns = await query(
+      `
       SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_KEY
       FROM information_schema.COLUMNS
       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
-    `, [process.env.DB_NAME, req.params.table]);
+    `,
+      [process.env.DB_NAME, req.params.table]
+    );
 
     res.json({ columns });
   } catch (error) {
     console.error(`Error fetching schema for ${req.params.table}:`, error);
-    res.status(500).json({ error: `Failed to fetch schema for ${req.params.table}` });
+    res
+      .status(500)
+      .json({ error: `Failed to fetch schema for ${req.params.table}` });
   }
 });
 
-
 // --- POST create a new review ---
-app.post('/api/reviews', async (req, res) => {
+app.post("/api/reviews", async (req, res) => {
   const { userNetId, sessionId, reviewText, rating } = req.body;
 
   if (!userNetId || !sessionId || !reviewText || rating == null) {
-    return res.status(400).json({ error: 'Missing required fields' });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
@@ -293,14 +320,15 @@ app.post('/api/reviews', async (req, res) => {
       [userNetId, sessionId, reviewText, rating]
     );
 
-    res.status(201).json({ message: 'Review submitted successfully', reviewId: result.insertId });
+    res.status(201).json({
+      message: "Review submitted successfully",
+      reviewId: result.insertId,
+    });
   } catch (error) {
-    console.error('Error submitting review:', error);
-    res.status(500).json({ error: 'Failed to submit review' });
+    console.error("Error submitting review:", error);
+    res.status(500).json({ error: "Failed to submit review" });
   }
 });
-
-
 
 // --- GET fetch all reviews ---
 app.get("/api/reviews", async (req, res) => {
@@ -312,7 +340,6 @@ app.get("/api/reviews", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch reviews" });
   }
 });
-
 
 // Catch-all: serve index.html for anything else
 app.get("*", (req, res) => {
