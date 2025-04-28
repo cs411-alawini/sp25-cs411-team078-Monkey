@@ -266,14 +266,13 @@ app.get("/api/debug/schema/:table", async (req, res) => {
 app.post('/api/reviews', async (req, res) => {
   const { userNetId, sessionId, reviewText, rating } = req.body;
 
-  if (!userNetId || !sessionId || !reviewText || !rating) {
+  if (!userNetId || !sessionId || !reviewText || rating == null) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
   try {
-    // Insert review into your Reviews table
     const result = await query(
-      `INSERT INTO Reviews (UserNetId, SessionId, ReviewText, Rating)
+      `INSERT INTO Reviews (UserNetId, SessionId, Comment, Rating)
        VALUES (?, ?, ?, ?)`,
       [userNetId, sessionId, reviewText, rating]
     );
@@ -284,6 +283,8 @@ app.post('/api/reviews', async (req, res) => {
     res.status(500).json({ error: 'Failed to submit review' });
   }
 });
+
+
 
 // --- GET fetch all reviews ---
 app.get("/api/reviews", async (req, res) => {

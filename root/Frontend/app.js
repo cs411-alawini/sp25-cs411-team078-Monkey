@@ -254,14 +254,19 @@ async function handleReviewSubmit(event) {
     return alert("You must be logged in to leave a review.");
   }
 
+  if (!currentUser.SessionId) {
+    return alert("You must be in a study session to leave a review.");
+  }
+
   try {
     const response = await fetch('/api/reviews', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userNetId: currentUser.UserNetId,
-        rating,
-        comment
+        sessionId: currentUser.SessionId,   // ✅ Send sessionId
+        reviewText: comment,                 // ✅ Rename comment to reviewText
+        rating
       })
     });
 
@@ -275,6 +280,7 @@ async function handleReviewSubmit(event) {
     alert("Failed to submit review.");
   }
 }
+
 
 async function fetchReviewsFromBackend() {
   try {
