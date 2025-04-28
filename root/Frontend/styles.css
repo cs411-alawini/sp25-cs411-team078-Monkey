@@ -231,3 +231,24 @@ button:hover {
 .autocomplete-item:hover {
   background-color: #f1f1f1;
 }
+
+/* Top Courses Section */
+.top-courses {
+  background-color: white;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#topCoursesList {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+#topCoursesList li {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
