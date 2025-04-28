@@ -230,3 +230,80 @@ function updateUIForLoggedOutUser() {
 function getCurrentUserNetId() {
   return currentUser ? currentUser.UserNetId : null;
 }
+
+
+// Initialize review form listener
+const reviewForm = document.getElementById("reviewForm");
+if (reviewForm) {
+  reviewForm.addEventListener("submit", handleReviewSubmit);
+}
+
+// Load reviews on page load
+fetchReviewsFromBackend();
+
+async function handleReviewSubmit(event) {
+  event.preventDefault();
+
+  const ratingInput = document.getElementById("rating");
+  const commentInput = document.getElementById("comment");
+
+  const rating = parseInt(ratingInput.value);
+  const comment = commentInput.value.trim();
+
+  if (!currentUser) {
+    return alert("You must be logged in to leave a review.");
+  }
+
+  try {
+    const response = await fetch('/api/reviews', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userNetId: currentUser.UserNetId,
+        rating,
+        comment
+      })
+    });
+
+    if (!response.ok) throw new Error(await response.text());
+
+    alert("Review submitted successfully!");
+    reviewForm.reset();
+    fetchReviewsFromBackend(); // Refresh reviews list
+  } catch (error) {
+    console.error("Error submitting review:", error);
+    alert("Failed to submit review.");
+  }
+}
+
+async function fetchReviewsFromBackend() {
+  try {
+    const response = await fetch('/api/reviews');
+    if (!response.ok) {
+      throw new Error("Failed to fetch reviews");
+    }
+
+    const reviews = await response.json();
+    const reviewsList = document.getElementById("reviewsList");
+    reviewsList.innerHTML = "";
+
+    if (reviews.length === 0) {
+      reviewsList.innerHTML = "<p>No reviews yet. Be the first!</p>";
+      return;
+    }
+
+    reviews.forEach(review => {
+      const reviewItem = document.createElement("div");
+      reviewItem.classList.add("review-item");
+      reviewItem.innerHTML = `
+        <p><strong>${review.FirstName || "Anonymous"} ${review.LastName || ""}</strong> (${review.Rating}⭐)</p>
+        <p>${review.Comment || "No comment provided."}</p>
+        <hr>
+      `;
+      reviewsList.appendChild(reviewItem);
+    });
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+  }
+}
+

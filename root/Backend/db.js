@@ -284,6 +284,24 @@ async function getSessionDetailsWithParticipants(sessionId) {
 }
 setTimeout(verifyDatabaseSetup, 1000);
 
+const reviewQueries = {
+  createReview: async ({ userNetId, rating, comment }) => {
+    return await query(
+      "INSERT INTO Reviews (UserNetId, Rating, Comment) VALUES (?, ?, ?)",
+      [userNetId, rating, comment]
+    );
+  },
+
+  getAllReviews: async () => {
+    return await query(`
+      SELECT Reviews.*, Users.FirstName, Users.LastName
+      FROM Reviews
+      LEFT JOIN Users ON Reviews.UserNetId = Users.UserNetId
+      ORDER BY CreatedAt DESC
+    `);
+  }
+};
+
 module.exports = {
   query,
   transaction,
@@ -291,11 +309,14 @@ module.exports = {
   courseQueries,
   locationQueries,
   sessionQueries,
+  reviewQueries,
   createStudySessionAndAssignUser,
   getSessionDetailsWithParticipants,
   testConnection,
   verifyDatabaseSetup,
 };
+
+
 
 // // Database connection setup for StudyLync MySQL on GCP
 // const mysql = require('mysql2/promise');

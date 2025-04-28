@@ -8,6 +8,7 @@ const {
   courseQueries,
   locationQueries,
   sessionQueries,
+  reviewQueries,
   query,
   createStudySessionAndAssignUser,
   getSessionDetailsWithParticipants,
@@ -259,6 +260,42 @@ app.get("/api/debug/schema/:table", async (req, res) => {
     res.status(500).json({ error: `Failed to fetch schema for ${req.params.table}` });
   }
 });
+
+
+// --- POST create a new review ---
+app.post('/api/reviews', async (req, res) => {
+  const { userNetId, sessionId, reviewText, rating } = req.body;
+
+  if (!userNetId || !sessionId || !reviewText || !rating) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Insert review into your Reviews table
+    const result = await query(
+      `INSERT INTO Reviews (UserNetId, SessionId, ReviewText, Rating)
+       VALUES (?, ?, ?, ?)`,
+      [userNetId, sessionId, reviewText, rating]
+    );
+
+    res.status(201).json({ message: 'Review submitted successfully', reviewId: result.insertId });
+  } catch (error) {
+    console.error('Error submitting review:', error);
+    res.status(500).json({ error: 'Failed to submit review' });
+  }
+});
+
+// --- GET fetch all reviews ---
+app.get("/api/reviews", async (req, res) => {
+  try {
+    const reviews = await reviewQueries.getAllReviews();
+    res.json(reviews);
+  } catch (error) {
+    console.error("Error fetching reviews:", error);
+    res.status(500).json({ error: "Failed to fetch reviews" });
+  }
+});
+
 
 // Catch-all: serve index.html for anything else
 app.get("*", (req, res) => {
