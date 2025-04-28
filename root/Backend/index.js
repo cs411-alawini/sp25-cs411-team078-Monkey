@@ -206,6 +206,29 @@ app.post("/api/study-sessions/:id/join", async (req, res) => {
   }
 });
 
+// --- DELETE a study session ---
+app.delete("/api/delete-session/:sessionId", async (req, res) => {
+  const { sessionId } = req.params;
+
+  try {
+    // Confirm session exists
+    const session = await sessionQueries.getSessionById(sessionId);
+    if (!session || session.length === 0) {
+      return res.status(404).json({ error: "Session not found" });
+    }
+
+    // Delete the session
+    await query('DELETE FROM StudySessions WHERE SessionId = ?', [sessionId]);
+
+    // AfterDeleteStudySession trigger will fire automatically to clear user SessionIds!
+    res.status(200).json({ message: "Session deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting session:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
 // Debug
 app.get("/api/debug/tables", async (req, res) => {
   try {

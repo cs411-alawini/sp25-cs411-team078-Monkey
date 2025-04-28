@@ -37,6 +37,45 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+
+async function joinStudySession(sessionId) {
+  const storedUser = JSON.parse(localStorage.getItem('studylync_user'));
+  if (!storedUser) {
+    alert('You must be logged in to join a session.');
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/study-sessions/${sessionId}/join`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ netId: storedUser.UserNetId })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert('Joined the study session successfully!');
+
+      //  Update SessionId in localStorage
+      const updatedUser = { ...storedUser, SessionId: sessionId };
+      localStorage.setItem('studylync_user', JSON.stringify(updatedUser));
+
+      // Update currentUser global variable too
+      currentUser = updatedUser;
+
+      // Re-check Delete button visibility
+      checkDeleteButtonVisibility();
+
+    } else {
+      const errorData = await response.json();
+      alert('Error joining session: ' + errorData.error);
+    }
+  } catch (error) {
+    console.error('Failed to join study session:', error);
+    alert('An unexpected error occurred.');
+  }
+}
+
 // Handle user login (simulated for now)
 async function handleLogin(event) {
   if (event) event.preventDefault();

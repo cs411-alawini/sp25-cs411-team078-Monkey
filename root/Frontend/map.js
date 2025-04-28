@@ -402,7 +402,21 @@ async function joinStudyGroup(sessionId, locationName) {
         console.log('Joined study session:', updatedSession);
         
         alert(`You've successfully joined the study group at ${locationName}!`);
-        
+
+
+        // ✅ Update the stored user with the new SessionId
+        const storedUser = JSON.parse(localStorage.getItem('studylync_user'));
+        const updatedUser = { ...storedUser, SessionId: sessionId };
+        localStorage.setItem('studylync_user', JSON.stringify(updatedUser));
+
+        // ✅ Update global currentUser too
+        currentUser = updatedUser;
+
+        // ✅ Update delete button visibility
+        if (typeof checkDeleteButtonVisibility === 'function') {
+            checkDeleteButtonVisibility();
+        }
+
         // Refresh the study sessions to update the marker info
         fetchStudySessionsFromBackend();
         
