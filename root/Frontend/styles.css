@@ -252,3 +252,104 @@ button:hover {
   font-size: 18px;
   margin-bottom: 8px;
 }
+
+/* review section */
+/* Reviews Section Container */
+#reviews-section {
+  background-color: #ffffff;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* “Leave a Review” Form */
+#reviewFormContainer {
+  margin-bottom: 2rem;
+}
+
+#reviewFormContainer h3 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+#reviewForm label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+#reviewForm input[type="number"],
+#reviewForm textarea {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+#reviewForm textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#reviewForm button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  background-color: #e84a27; /* UIUC orange */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#reviewForm button:hover {
+  background-color: #c03c21;
+}
+
+/* Individual Review Cards */
+.review-item {
+  background-color: #fafafa;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.review-item p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.review-item p:first-of-type {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.review-item hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 1rem 0;
+}
+
+.review-item .session-info {
+  font-size: 0.9rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+/* Average Rating Footer */
+.review-average {
+  background-color: #ffffff;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  padding: 0.75rem 1rem;
+  border-top: 3px solid #13294b; /* UIUC blue */
+  border-radius: 0 0 8px 8px;
+  font-style: italic;
+  text-align: center;
+}

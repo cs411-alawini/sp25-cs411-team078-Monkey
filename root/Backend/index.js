@@ -333,8 +333,15 @@ app.post("/api/reviews", async (req, res) => {
 // --- GET fetch all reviews ---
 app.get("/api/reviews", async (req, res) => {
   try {
-    const reviews = await reviewQueries.getAllReviews();
-    res.json(reviews);
+    // 1) fetch the 3 most recent reviews (now with sessionReviewCount)
+    const reviews = await reviewQueries.getRecentReviewsWithSession();
+
+    // 2) fetch overall average
+    const [avgRow] = await reviewQueries.getAverageRating();
+    const averageRating = avgRow ? avgRow.averageRating : null;
+
+    // 3) ship both down
+    res.json({ reviews, averageRating });
   } catch (error) {
     console.error("Error fetching reviews:", error);
     res.status(500).json({ error: "Failed to fetch reviews" });

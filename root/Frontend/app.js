@@ -37,11 +37,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
 async function joinStudySession(sessionId) {
-  const storedUser = JSON.parse(localStorage.getItem('studylync_user'));
+  const storedUser = JSON.parse(localStorage.getItem("studylync_user"));
   if (!storedUser) {
-    alert('You must be logged in to join a session.');
+    alert("You must be logged in to join a session.");
     return;
   }
 
@@ -49,30 +48,29 @@ async function joinStudySession(sessionId) {
     const response = await fetch(`/api/study-sessions/${sessionId}/join`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ netId: storedUser.UserNetId })
+      body: JSON.stringify({ netId: storedUser.UserNetId }),
     });
 
     if (response.ok) {
       const result = await response.json();
-      alert('Joined the study session successfully!');
+      alert("Joined the study session successfully!");
 
       //  Update SessionId in localStorage
       const updatedUser = { ...storedUser, SessionId: sessionId };
-      localStorage.setItem('studylync_user', JSON.stringify(updatedUser));
+      localStorage.setItem("studylync_user", JSON.stringify(updatedUser));
 
       // Update currentUser global variable too
       currentUser = updatedUser;
 
       // Re-check Delete button visibility
       checkDeleteButtonVisibility();
-
     } else {
       const errorData = await response.json();
-      alert('Error joining session: ' + errorData.error);
+      alert("Error joining session: " + errorData.error);
     }
   } catch (error) {
-    console.error('Failed to join study session:', error);
-    alert('An unexpected error occurred.');
+    console.error("Failed to join study session:", error);
+    alert("An unexpected error occurred.");
   }
 }
 
@@ -231,7 +229,6 @@ function getCurrentUserNetId() {
   return currentUser ? currentUser.UserNetId : null;
 }
 
-
 // Initialize review form listener
 const reviewForm = document.getElementById("reviewForm");
 if (reviewForm) {
@@ -259,15 +256,15 @@ async function handleReviewSubmit(event) {
   }
 
   try {
-    const response = await fetch('/api/reviews', {
+    const response = await fetch("/api/reviews", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userNetId: currentUser.UserNetId,
-        sessionId: currentUser.SessionId,   // ✅ Send sessionId
-        reviewText: comment,                 // ✅ Rename comment to reviewText
-        rating
-      })
+        sessionId: currentUser.SessionId, // ✅ Send sessionId
+        reviewText: comment, // ✅ Rename comment to reviewText
+        rating,
+      }),
     });
 
     if (!response.ok) throw new Error(await response.text());
@@ -281,35 +278,52 @@ async function handleReviewSubmit(event) {
   }
 }
 
-
 async function fetchReviewsFromBackend() {
   try {
-    const response = await fetch('/api/reviews');
-    if (!response.ok) {
-      throw new Error("Failed to fetch reviews");
-    }
+    // request only the 3 most recent
+    const response = await fetch("/api/reviews");
+    if (!response.ok) throw new Error("Failed to fetch reviews");
 
-    const reviews = await response.json();
+    const { reviews, averageRating } = await response.json();
     const reviewsList = document.getElementById("reviewsList");
-    reviewsList.innerHTML = "";
+    reviewsList.innerHTML = ""; // clear old
 
     if (reviews.length === 0) {
       reviewsList.innerHTML = "<p>No reviews yet. Be the first!</p>";
       return;
     }
 
-    reviews.forEach(review => {
+    // render each review
+    reviews.forEach((review) => {
       const reviewItem = document.createElement("div");
       reviewItem.classList.add("review-item");
       reviewItem.innerHTML = `
-        <p><strong>${review.FirstName || "Anonymous"} ${review.LastName || ""}</strong> (${review.Rating}⭐)</p>
+        <p>
+          <strong>${review.FirstName || "Anonymous"} ${
+        review.LastName || ""
+      }</strong>
+          (${review.Rating}⭐) 
+          <em>— Session:</em> "${review.SessionDescription || "N/A"}"
+        </p>
         <p>${review.Comment || "No comment provided."}</p>
+        <p><em>${review.sessionReviewCount} review${
+        review.sessionReviewCount === 1 ? "" : "s"
+      } in this session</em></p>
         <hr>
       `;
       reviewsList.appendChild(reviewItem);
     });
+
+    // render average rating
+    const avgDiv = document.createElement("div");
+    avgDiv.classList.add("review-average");
+    avgDiv.innerHTML = `
+      <p><strong>Average Rating (all reviews):</strong> ${averageRating}⭐</p>
+    `;
+    reviewsList.appendChild(avgDiv);
   } catch (error) {
     console.error("Error fetching reviews:", error);
+    const reviewsList = document.getElementById("reviewsList");
+    reviewsList.innerHTML = "<p>Could not load reviews at this time.</p>";
   }
 }
-
