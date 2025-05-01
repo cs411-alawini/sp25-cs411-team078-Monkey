@@ -1,280 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyLync - Find Study Groups</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <!-- Navigation Bar -->
-    <nav id="navbar">
-      <div class="logo">StudyLync</div>
-      <div class="nav-links">
-        <button id="refreshMap">Refresh Map</button>
-        <button id="deleteSessionButton">Delete My Study Session</button>
-        <button id="loginButton">Login</button>
-        <button id="signupButton">Sign Up</button>
-        <span id="userDisplay" style="display: none"></span>
-        <button id="logoutButton" style="display: none">Logout</button>
-      </div>
-    </nav>
-
-    <!-- Header Section -->
-    <div id="header">
-      <h1>StudyLync</h1>
-      <p>Find study groups near you at UIUC</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyLync - Find Study Groups</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- nav Bar -->
+  <nav id="navbar">
+    <div class="logo">StudyLync</div>
+    <div class="nav-links">
+      <button id="refreshMap">Refresh Map</button>
+      <button id="deleteSessionButton">Delete My Study Session</button>
+      <button id="loginButton">Login</button>
+      <button id="signupButton">Sign Up</button>
+      <span id="userDisplay" style="display: none"></span>
+      <button id="logoutButton" style="display: none">Logout</button>
     </div>
+  </nav>
 
-    <!-- Top Courses Section -->
-    <div id="top-courses-section" class="top-courses">
-      <h2>Top 3 Courses by Attendance</h2>
-      <ul id="topCoursesList">
-        <!-- Top courses will be loaded here -->
-      </ul>
+  <!-- Header Section -->
+  <div id="header">
+    <h1>StudyLync</h1>
+    <p>Find study groups near you at UIUC</p>
+  </div>
+
+  <!-- Top Courses Section -->
+  <div id="top-courses-section" class="top-courses">
+    <h2>Top 3 Courses by Attendance</h2>
+    <ul id="topCoursesList">
+      <!--  courses will be loaded here -->
+    </ul>
+  </div>
+
+  <!-- Controls Section -->
+  <div class="controls">
+    <div class="autocomplete-container">
+      <input type="text" id="courseFilter" placeholder="Search for a course..." autocomplete="off">
+      <div id="autocompleteList" class="autocomplete-items"></div>
     </div>
+    <button id="dropPin">Drop Pin at My Location</button>
+  </div>
 
-    <!-- Controls Section -->
-    <div class="controls">
-      <div class="autocomplete-container">
-        <input
-          type="text"
-          id="courseFilter"
-          placeholder="Search for a course..."
-          autocomplete="off"
-        />
-        <div id="autocompleteList" class="autocomplete-items"></div>
-      </div>
-      <button id="dropPin">Drop Pin at My Location</button>
+  <!-- Map Container -->
+  <div id="map"></div>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Login with Illinois NetID</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="netId">NetID:</label>
+          <input type="text" id="netId" name="netId" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+          <button type="submit">Login</button>
+        </div>
+        <p class="form-note">Note: For testing, use 'testuser' with password 'password'</p>
+      </form>
     </div>
+  </div>
 
-    <!-- Map Container -->
-    <div id="map"></div>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Login with Illinois NetID</h2>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="netId">NetID:</label>
-            <input type="text" id="netId" name="netId" required />
-          </div>
-          <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required />
-          </div>
-          <div class="form-group">
-            <button type="submit">Login</button>
-          </div>
-          <p class="form-note">
-            Note: For testing, use 'testuser' with password 'password'
-          </p>
-        </form>
-      </div>
+  <!-- Sign Up Modal -->
+  <div id="signupModal" class="modal">
+    <div class="modal-content">
+      <span class="close-signup-button">&times;</span>
+      <h2>Create a New Account</h2>
+      <form id="signupForm">
+        <div class="form-group">
+          <label for="suNetId">NetID:</label>
+          <input type="text" id="suNetId" name="netId" required>
+        </div>
+        <div class="form-group">
+          <label for="suFirstName">First Name:</label>
+          <input type="text" id="suFirstName" name="firstName" required>
+        </div>
+        <div class="form-group">
+          <label for="suLastName">Last Name:</label>
+          <input type="text" id="suLastName" name="lastName" required>
+        </div>
+        <div class="form-group">
+          <label for="suEmail">Email:</label>
+          <input type="email" id="suEmail" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="suPassword">Password:</label>
+          <input type="password" id="suPassword" name="password" required>
+        </div>
+        <div class="form-group">
+          <button type="submit">Sign Up</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- Sign Up Modal -->
-    <div id="signupModal" class="modal">
-      <div class="modal-content">
-        <span class="close-signup-button">&times;</span>
-        <h2>Create a New Account</h2>
-        <form id="signupForm">
-          <div class="form-group">
-            <label for="suNetId">NetID:</label>
-            <input type="text" id="suNetId" name="netId" required />
-          </div>
-          <div class="form-group">
-            <label for="suFirstName">First Name:</label>
-            <input type="text" id="suFirstName" name="firstName" required />
-          </div>
-          <div class="form-group">
-            <label for="suLastName">Last Name:</label>
-            <input type="text" id="suLastName" name="lastName" required />
-          </div>
-          <div class="form-group">
-            <label for="suEmail">Email:</label>
-            <input type="email" id="suEmail" name="email" required />
-          </div>
-          <div class="form-group">
-            <label for="suPassword">Password:</label>
-            <input type="password" id="suPassword" name="password" required />
-          </div>
-          <div class="form-group">
-            <button type="submit">Sign Up</button>
-          </div>
-        </form>
-      </div>
+  <!-- Reviews Section -->
+  <div id="reviews-section">
+    <h2>Reviews</h2>
+    <div id="reviewFormContainer">
+      <h3>Leave a Review</h3>
+      <form id="reviewForm">
+        <label for="rating">Rating (1-5):</label>
+        <input type="number" id="rating" name="rating" min="1" max="5" required>
+        <br><br>
+        <label for="comment">Comment:</label><br>
+        <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
+        <br><br>
+        <button type="submit">Submit Review</button>
+      </form>
     </div>
-
-    <!-- Reviews Section -->
-    <div id="reviews-section">
-      <h2>Reviews</h2>
-      <div id="reviewFormContainer">
-        <h3>Leave a Review</h3>
-        <form id="reviewForm">
-          <label for="rating">Rating (1-5):</label>
-          <input
-            type="number"
-            id="rating"
-            name="rating"
-            min="1"
-            max="5"
-            required
-          />
-          <br /><br />
-          <label for="comment">Comment:</label><br />
-          <textarea id="comment" name="comment" rows="4" cols="50"></textarea>
-          <br /><br />
-          <button type="submit">Submit Review</button>
-        </form>
-      </div>
-      <div id="reviewsList">
-        <!-- Reviews will be dynamically loaded here -->
-      </div>
+    <div id="reviewsList">
     </div>
+  </div>
 
-    <!-- Scripts -->
-    <script src="map.js"></script>
-    <script src="app.js"></script>
-    <script>
-      // Modal functionality
-      const modal = document.getElementById("loginModal");
-      const signupModal = document.getElementById("signupModal");
-      const loginButton = document.getElementById("loginButton");
-      const signupButton = document.getElementById("signupButton");
-      const closeButton = document.querySelector(".close-button");
-      const closeSignupButton = document.querySelector(".close-signup-button");
-
-      if (loginButton) {
-        loginButton.addEventListener("click", () => {
-          modal.style.display = "block";
-        });
+  <!-- scripts -->
+  <script src="map.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Modal functionality
+    const modal = document.getElementById("loginModal");
+    const signupModal = document.getElementById("signupModal");
+    const loginButton = document.getElementById("loginButton");
+    const signupButton = document.getElementById("signupButton");
+    const closeButton = document.querySelector(".close-button");
+    const closeSignupButton = document.querySelector(".close-signup-button");
+    
+    if (loginButton) {
+      loginButton.addEventListener("click", () => {
+        modal.style.display = "block";
+      });
+    }
+    
+    if (signupButton) {
+      signupButton.addEventListener("click", () => {
+        signupModal.style.display = "block";
+      });
+    }
+    
+    if (closeButton) {
+      closeButton.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+    }
+    
+    if (closeSignupButton) {
+      closeSignupButton.addEventListener("click", () => {
+        signupModal.style.display = "none";
+      });
+    }
+    
+    window.addEventListener("click", (event) => {
+      if (event.target === modal) {
+        modal.style.display = "none";
       }
-
-      if (signupButton) {
-        signupButton.addEventListener("click", () => {
-          signupModal.style.display = "block";
-        });
+      if (event.target === signupModal) {
+        signupModal.style.display = "none";
       }
+    });
 
-      if (closeButton) {
-        closeButton.addEventListener("click", () => {
-          modal.style.display = "none";
-        });
-      }
+    //  Google Maps
+    function initMap() {
+      initializeMap();
+    }
 
-      if (closeSignupButton) {
-        closeSignupButton.addEventListener("click", () => {
-          signupModal.style.display = "none";
-        });
-      }
+    const deleteSessionButton = document.getElementById("deleteSessionButton");
 
-      window.addEventListener("click", (event) => {
-        if (event.target === modal) {
-          modal.style.display = "none";
+    if (deleteSessionButton) {
+      deleteSessionButton.addEventListener("click", async () => {
+        const storedUser = localStorage.getItem("studylync_user");
+        if (!storedUser) {
+          alert("You must be logged in to delete a study session.");
+          return;
         }
-        if (event.target === signupModal) {
-          signupModal.style.display = "none";
+
+        const user = JSON.parse(storedUser);
+
+        if (!user.SessionId) {
+          alert("You are not currently in a study session.");
+          return;
+        }
+
+        const confirmDelete = confirm(`Are you sure you want to delete session #${user.SessionId}?`);
+        if (!confirmDelete) return;
+
+        try {
+          const response = await fetch(`/api/delete-session/${user.SessionId}`, {
+            method: "DELETE",
+          });
+
+          if (response.ok) {
+            alert("Session deleted successfully.");
+            // Clear the user's session locally
+            user.SessionId = null;
+            localStorage.setItem("studylync_user", JSON.stringify(user));
+            location.reload(); // Refresh the page to update the map
+          } else {
+            const errorData = await response.json();
+            alert("Error deleting session: " + errorData.error);
+          }
+        } catch (error) {
+          console.error("Delete failed:", error);
+          alert("An unexpected error occurred.");
         }
       });
+    }
 
-      // Initialize Google Maps
-      function initMap() {
-        initializeMap();
-      }
+    async function loadTopCourses() {
+      try {
+        const response = await fetch("/api/top-courses");
+        const topCourses = await response.json();
 
-      const deleteSessionButton = document.getElementById(
-        "deleteSessionButton"
-      );
+        const list = document.getElementById("topCoursesList");
+        list.innerHTML = ""; 
 
-      if (deleteSessionButton) {
-        deleteSessionButton.addEventListener("click", async () => {
-          const storedUser = localStorage.getItem("studylync_user");
-          if (!storedUser) {
-            alert("You must be logged in to delete a study session.");
-            return;
-          }
-
-          const user = JSON.parse(storedUser);
-
-          if (!user.SessionId) {
-            alert("You are not currently in a study session.");
-            return;
-          }
-
-          const confirmDelete = confirm(
-            `Are you sure you want to delete session #${user.SessionId}?`
-          );
-          if (!confirmDelete) return;
-
-          try {
-            const response = await fetch(
-              `/api/delete-session/${user.SessionId}`,
-              {
-                method: "DELETE",
-              }
-            );
-
-            if (response.ok) {
-              alert("Session deleted successfully.");
-              // Clear the user's session locally
-              user.SessionId = null;
-              localStorage.setItem("studylync_user", JSON.stringify(user));
-              location.reload(); // Refresh the page to update the map
-            } else {
-              const errorData = await response.json();
-              alert("Error deleting session: " + errorData.error);
-            }
-          } catch (error) {
-            console.error("Delete failed:", error);
-            alert("An unexpected error occurred.");
-          }
+        topCourses.forEach((course, index) => {
+          const li = document.createElement("li");
+          li.textContent = `${index + 1}. ${course.CourseTitle} - ${course.StudentCount} students`;
+          list.appendChild(li);
         });
+      } catch (error) {
+        console.error("Failed to load top courses:", error);
       }
+    }
 
-      async function loadTopCourses() {
-        try {
-          const response = await fetch("/api/top-courses");
-          const topCourses = await response.json();
+    // Load top courses when the page loads
+    loadTopCourses();
 
-          const list = document.getElementById("topCoursesList");
-          list.innerHTML = ""; // Clear previous list
-
-          topCourses.forEach((course, index) => {
-            const li = document.createElement("li");
-            li.textContent = `${index + 1}. ${course.CourseTitle} - ${
-              course.StudentCount
-            } students`;
-            list.appendChild(li);
-          });
-        } catch (error) {
-          console.error("Failed to load top courses:", error);
-        }
+    function checkDeleteButtonVisibility() {
+      const storedUser = localStorage.getItem("studylync_user");
+      if (storedUser) {
+        document.getElementById("deleteSessionButton").style.display = "inline-block";
+      } else {
+        document.getElementById("deleteSessionButton").style.display = "none";
       }
+    }
 
-      // Load top courses when the page loads
-      loadTopCourses();
+    checkDeleteButtonVisibility();
+  </script>
 
-      function checkDeleteButtonVisibility() {
-        const storedUser = localStorage.getItem("studylync_user");
-        if (storedUser) {
-          document.getElementById("deleteSessionButton").style.display =
-            "inline-block";
-        } else {
-          document.getElementById("deleteSessionButton").style.display = "none";
-        }
-      }
-
-      checkDeleteButtonVisibility();
-    </script>
-
-    <!-- Google Maps API -->
-    <script
-      async
-      defer
-      //src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBN3IysXaxHJ6OCxV4K6PnRt1gnT6ogYDM&callback=initMap"
-    ></script>
-  </body>
+  <!-- Google Maps API -->
+  <script 
+    async 
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key=APIKEY GOES HERE &callback=initMap">
+  </script>
+</body>
 </html>

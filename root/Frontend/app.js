@@ -1,4 +1,3 @@
-// Main application logic for StudyLync
 
 // Global variables
 let currentUser = null;
@@ -6,7 +5,6 @@ let currentUser = null;
 document.addEventListener("DOMContentLoaded", function () {
   console.log("StudyLync application initialized");
 
-  // Check if we have a user in localStorage (simulating authentication)
   const storedUser = localStorage.getItem("studylync_user");
   if (storedUser) {
     try {
@@ -18,19 +16,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Initialize login form listener if it exists
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", handleLogin);
   }
 
-  // Initialize signup form listener if it exists
   const signupForm = document.getElementById("signupForm");
   if (signupForm) {
     signupForm.addEventListener("submit", handleSignup);
   }
 
-  // Initialize logout button if it exists
   const logoutButton = document.getElementById("logoutButton");
   if (logoutButton) {
     logoutButton.addEventListener("click", handleLogout);
@@ -261,8 +256,8 @@ async function handleReviewSubmit(event) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userNetId: currentUser.UserNetId,
-        sessionId: currentUser.SessionId, // ✅ Send sessionId
-        reviewText: comment, // ✅ Rename comment to reviewText
+        sessionId: currentUser.SessionId, 
+        reviewText: comment, 
         rating,
       }),
     });

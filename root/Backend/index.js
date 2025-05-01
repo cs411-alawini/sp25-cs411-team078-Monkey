@@ -1,4 +1,4 @@
-// StudyLync Backend Server
+//  Backend Server
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -17,15 +17,13 @@ const {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from Frontend
 app.use(express.static(path.join(__dirname, "../Frontend")));
 
-// Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "StudyLync API is running" });
 });
@@ -113,7 +111,7 @@ app.post("/api/locations", async (req, res) => {
   }
 });
 
-// --- GET top courses by attendance ---
+//  GET top courses by attendance 
 app.get("/api/top-courses", async (req, res) => {
   try {
     const topCourses = await sessionQueries.getTopCoursesByAttendance();
@@ -126,7 +124,7 @@ app.get("/api/top-courses", async (req, res) => {
 
 // Study Sessions
 
-// --- GET all study sessions ---
+//  GET all study sessions 
 app.get("/api/study-sessions", async (req, res) => {
   try {
     let sessions;
@@ -153,7 +151,7 @@ app.get("/api/study-sessions", async (req, res) => {
   }
 });
 
-// --- GET one study session with participants (stored procedure) ---
+//  GET one study session with participants (stored procedure) 
 app.get("/api/study-sessions/:id", async (req, res) => {
   try {
     const sessionDetails = await getSessionDetailsWithParticipants(
@@ -172,12 +170,11 @@ app.get("/api/study-sessions/:id", async (req, res) => {
 });
 
 // --- POST create new study session (stored procedure) ---
-// --- POST create new study session (and join user automatically) ---
 app.post("/api/study-sessions", async (req, res) => {
   try {
     let locationId = req.body.locationId;
 
-    // Step 1: Create location if needed
+    // create location if needed
     if (!locationId && req.body.location) {
       const locationResult = await locationQueries.createLocation({
         name: req.body.location.name,
@@ -192,7 +189,7 @@ app.post("/api/study-sessions", async (req, res) => {
       return res.status(400).json({ error: "Creator NetId is required" });
     }
 
-    // Step 2: Create the study session
+    // create the study session
     await sessionQueries.createStudySession({
       courseTitle: req.body.courseTitle,
       locationId: locationId,
@@ -200,12 +197,12 @@ app.post("/api/study-sessions", async (req, res) => {
       description: req.body.description || "",
     });
 
-    // Step 3: Get the newly created session
+    // get  newly created session
     const sessions = await sessionQueries.getAllSessions();
     const newSession = sessions[sessions.length - 1];
     const newSessionId = newSession.SessionId;
 
-    // Step 4: Update the creator's SessionId
+    // update the creator's SessionId
     await userQueries.updateUserSession(req.body.creatorNetId, newSessionId);
 
     res.status(201).json(newSession);
@@ -235,7 +232,7 @@ app.post("/api/study-sessions/:id/join", async (req, res) => {
   }
 });
 
-// --- DELETE a study session ---
+//  DELETE a study session 
 app.delete("/api/delete-session/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
@@ -305,7 +302,7 @@ app.get("/api/debug/schema/:table", async (req, res) => {
   }
 });
 
-// --- POST create a new review ---
+//  POST create a new review 
 app.post("/api/reviews", async (req, res) => {
   const { userNetId, sessionId, reviewText, rating } = req.body;
 
@@ -330,17 +327,17 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-// --- GET fetch all reviews ---
+//  GET fetch all reviews 
 app.get("/api/reviews", async (req, res) => {
   try {
-    // 1) fetch the 3 most recent reviews (now with sessionReviewCount)
+    // fetch the 3 most recent reviews 
     const reviews = await reviewQueries.getRecentReviewsWithSession();
 
-    // 2) fetch overall average
+    //  fetch overall average
     const [avgRow] = await reviewQueries.getAverageRating();
     const averageRating = avgRow ? avgRow.averageRating : null;
 
-    // 3) ship both down
+    //  ship both down
     res.json({ reviews, averageRating });
   } catch (error) {
     console.error("Error fetching reviews:", error);
@@ -348,7 +345,7 @@ app.get("/api/reviews", async (req, res) => {
   }
 });
 
-// Catch-all: serve index.html for anything else
+// serve index.html for anything else
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../Frontend/index.html"));
 });

@@ -4,9 +4,8 @@ let markers = [];
 let userMarker = null;
 let studySessions = [];
 let courses = [];
-const UIUC_CENTER = { lat: 40.1020, lng: -88.2272 }; // UIUC campus coordinates
+const UIUC_CENTER = { lat: 40.1020, lng: -88.2272 }; // uiuc campus coords
 
-// Initialize the map
 function initializeMap() {
     console.log("HELLOOOOO")
     map = new google.maps.Map(document.getElementById("map"), {
@@ -61,12 +60,11 @@ async function fetchStudySessionsFromBackend() {
         });
     } catch (error) {
         console.error('Error fetching study sessions:', error);
-        // If API fails, add some sample data for testing
         addSampleStudyGroups();
     }
 }
 
-// Fetch courses from backend API
+//  courses from backend API
 async function fetchCoursesFromBackend() {
     try {
         const response = await fetch('/api/courses');
@@ -78,13 +76,12 @@ async function fetchCoursesFromBackend() {
         console.log('Fetched courses:', courses);
         
         // Populate the course dropdown
-        //populateCourseDropdown(courses);
     } catch (error) {
         console.error('Error fetching courses:', error);
     }
 }
 
-// fallback: sample study group markers if backend is not available
+//  sample study group markers if backend is not available
 function addSampleStudyGroups() {
     const sampleLocations = [
         { 
@@ -161,7 +158,7 @@ function addMarker(location) {
             const sessionDetails = await response.json();
             console.log("Fetched session details:", sessionDetails);
     
-            // Optionally: update info window content with participant count
+            // update info window content with participant count
             infowindow.setContent(`
                 <div class="info-window-content">
                     <h3>${location.title}</h3>
@@ -178,7 +175,7 @@ function addMarker(location) {
         }
     });
 
-    // Store the marker and its metadata
+    // store the marker and its metadata
     markers.push({
         marker: marker,
         course: location.course,
@@ -246,7 +243,7 @@ function populateCourseDropdown(courses) {
         const option = document.createElement('option');
         option.value = course.CourseTitle;
         
-        // use CourseName if available, otherwise just CourseTitle
+      
         const displayText = course.CourseName ? 
             `${course.CourseTitle} - ${course.CourseName}` : 
             course.CourseTitle;
@@ -270,7 +267,7 @@ function dropPinAtCurrentLocation() {
                     userMarker.setMap(null);
                 }
 
-                // add marker at user's location
+                // add marker 
                 userMarker = new google.maps.Marker({
                     position: userPosition,
                     map: map,
@@ -302,7 +299,7 @@ function dropPinAtCurrentLocation() {
 }
 
 function showCreateStudyGroupDialog(position) {
-    // Get a list of courses for the dropdown
+    // list of courses for the dropdown
     let courseOptions = '';
     courses.forEach(course => {
         courseOptions += `<option value="${course.CourseTitle}">${course.CourseTitle}</option>`;
@@ -358,7 +355,7 @@ async function createStudySession(sessionData, position) {
             console.log('Updated currentUser with new SessionId:', currentUser.SessionId);
         }
 
-        // ✅ Then refresh the map
+        // 
         fetchStudySessionsFromBackend();
         
     } catch (error) {
@@ -377,22 +374,21 @@ async function createStudySession(sessionData, position) {
 }
 
 
-// Join study group function
-// Join study group function
+// join study group function
 async function joinStudyGroup(sessionId, locationName) {
     if (!sessionId) {
         alert(`Invalid session. Please try again.`);
         return;
     }
     
-    // Check if user is signed in
+    // check if user is signed in
     if (!currentUser) {
         alert('You must be signed in to join a study group.');
         return;
     }
     
     try {
-        const userNetId = currentUser.UserNetId; // ✅ Use logged-in user's NetID
+        const userNetId = currentUser.UserNetId; //
         
         const response = await fetch(`/api/study-sessions/${sessionId}/join`, {
             method: 'POST',
@@ -412,15 +408,15 @@ async function joinStudyGroup(sessionId, locationName) {
         alert(`You've successfully joined the study group at ${locationName}!`);
 
 
-        // ✅ Update the stored user with the new SessionId
+        // 
         const storedUser = JSON.parse(localStorage.getItem('studylync_user'));
         const updatedUser = { ...storedUser, SessionId: sessionId };
         localStorage.setItem('studylync_user', JSON.stringify(updatedUser));
 
-        // ✅ Update global currentUser too
+        // 
         currentUser = updatedUser;
 
-        // ✅ Update delete button visibility
+        // 
         if (typeof checkDeleteButtonVisibility === 'function') {
             checkDeleteButtonVisibility();
         }
@@ -486,7 +482,7 @@ function setupAutocomplete() {
         });
     });
 
-    // Handle "Enter" key
+    // 
     courseInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
